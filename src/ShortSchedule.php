@@ -53,15 +53,19 @@ class ShortSchedule
         return $this;
     }
 
-    public function run(): void
+    public function pendingCommands()
     {
-        collect($this->pendingCommands)
+        return collect($this->pendingCommands)
             ->map(function (PendingShortScheduleCommand $pendingCommand) {
                 return new ShortScheduleCommand($pendingCommand);
-            })
-            ->each(function (ShortScheduleCommand $command) {
-                $this->addCommandToLoop($command, $this->loop);
             });
+    }
+
+    public function run(): void
+    {
+        $this->pendingCommands()->each(function (ShortScheduleCommand $command) {
+            $this->addCommandToLoop($command, $this->loop);
+        });
 
         $this->loop->run();
     }

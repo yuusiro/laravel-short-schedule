@@ -4,11 +4,13 @@ namespace Spatie\ShortSchedule;
 
 use Closure;
 use Illuminate\Support\Arr;
+use Illuminate\Support\ProcessUtils;
 use Spatie\ShortSchedule\RunConstraints\BetweenConstraint;
 use Spatie\ShortSchedule\RunConstraints\EnvironmentConstraint;
 use Spatie\ShortSchedule\RunConstraints\RunConstraint;
 use Spatie\ShortSchedule\RunConstraints\WhenConstraint;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Process\PhpExecutableFinder;
 
 class PendingShortScheduleCommand
 {
@@ -21,6 +23,8 @@ class PendingShortScheduleCommand
     protected bool $onOneServer = false;
 
     protected bool $evenInMaintenanceMode = false;
+
+    protected bool $runInBackground = false;
 
     protected array $constraints = [];
 
@@ -40,7 +44,7 @@ class PendingShortScheduleCommand
 
     public function command(string $artisanCommand):self
     {
-        $this->command = PHP_BINARY." artisan {$artisanCommand}";
+        $this->command = $this->formatCommandString($artisanCommand);
 
         return $this;
     }
@@ -118,6 +122,13 @@ class PendingShortScheduleCommand
         return $this;
     }
 
+    public function runInBackground(): self
+    {
+        $this->runInBackground = true;
+
+        return $this;
+    }
+
     public function getOnOneServer(): bool
     {
         return $this->onOneServer;
@@ -126,5 +137,41 @@ class PendingShortScheduleCommand
     public function cacheName(): string
     {
         return 'framework'.DIRECTORY_SEPARATOR.'schedule-'.sha1($this->frequencyInSeconds.$this->command);
+    }
+
+    public function cacheNameOnOneServer(): string
+    {
+        return 'framework'.DIRECTORY_SEPARATOR.'schedule-'.sha1($this->frequencyInSeconds.$this->command.'onOneServer');
+    }
+
+    /**
+     * Format the given command as a fully-qualified executable command.
+     *
+     * @param  string  $string
+     * @return string
+     */
+    public function formatCommandString($string)
+    {
+        return sprintf('%s %s %s', $this->phpBinary(), $this->artisanBinary(), $string);
+    }
+
+    /**
+     * Determine the proper PHP executable.
+     *
+     * @return string
+     */
+    private function phpBinary()
+    {
+        return ProcessUtils::escapeArgument((new PhpExecutableFinder)->find(false));
+    }
+
+    /**
+     * Determine the proper Artisan executable.
+     *
+     * @return string
+     */
+    private function artisanBinary()
+    {
+        return defined('ARTISAN_BINARY') ? ProcessUtils::escapeArgument(ARTISAN_BINARY) : 'artisan';
     }
 }

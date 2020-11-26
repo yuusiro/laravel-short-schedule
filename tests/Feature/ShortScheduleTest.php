@@ -2,6 +2,7 @@
 
 namespace Spatie\ShortSchedule\Tests\Feature;
 
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 use Spatie\ShortSchedule\ShortSchedule;
 use Spatie\ShortSchedule\Tests\TestCase;
@@ -14,7 +15,7 @@ class ShortScheduleTest extends TestCase
     {
         TestKernel::registerShortScheduleCommand(
             fn (ShortSchedule $shortSchedule) => $shortSchedule
-                ->exec("echo 'called' >> '{$this->getTempFilePath()}'")
+                ->exec("(echo 'called' >> '{$this->getTempFilePath()}')")
                 ->everySeconds(0.05)
         );
 
@@ -24,12 +25,13 @@ class ShortScheduleTest extends TestCase
     }
 
     /** @test */
-    public function it_will_overlap_tasks_by_default()
+    public function it_will_overlap_tasks_by_default_in_backround_or_multiple_server()
     {
         TestKernel::registerShortScheduleCommand(
             fn (ShortSchedule $shortSchedule) => $shortSchedule
                 ->exec("echo 'called' >> '{$this->getTempFilePath()}'; sleep 0.2")
                 ->everySeconds(0.1)
+                ->runInBackground()
         );
 
         $this
@@ -38,18 +40,22 @@ class ShortScheduleTest extends TestCase
     }
 
     /** @test */
-    public function it_can_prevent_overlaps()
+    public function it_can_prevent_overlaps_in_background_or_multiple_server()
     {
+        $key = 'framework'.DIRECTORY_SEPARATOR.'schedule-'.sha1('0.1'."(echo 'called' >> '{$this->getTempFilePath()}')");
+        Cache::add($key, true, 60);
+
         TestKernel::registerShortScheduleCommand(
             fn (ShortSchedule $shortSchedule) => $shortSchedule
-                ->exec("echo 'called' >> '{$this->getTempFilePath()}'; sleep 0.2")
+                ->exec("(echo 'called' >> '{$this->getTempFilePath()}')")
                 ->everySeconds(0.1)
                 ->withoutOverlapping()
+                ->runInBackground()
         );
 
         $this
-            ->runShortScheduleForSeconds(0.59)
-            ->assertTempFileContains('called', 2);
+            ->runShortScheduleForSeconds(0.29)
+            ->assertTempFileContains('called', 0);
     }
 
     /** @test */
@@ -57,7 +63,7 @@ class ShortScheduleTest extends TestCase
     {
         TestKernel::registerShortScheduleCommand(
             fn (ShortSchedule $shortSchedule) => $shortSchedule
-                ->exec("echo 'called' >> '{$this->getTempFilePath()}'")
+                ->exec("(echo 'called' >> '{$this->getTempFilePath()}')")
                 ->everySeconds(0.1)
                 ->when(fn () => false)
         );
@@ -68,13 +74,13 @@ class ShortScheduleTest extends TestCase
 
         TestKernel::registerShortScheduleCommand(
             fn (ShortSchedule $shortSchedule) => $shortSchedule
-                ->exec("echo 'called' >> '{$this->getTempFilePath()}'")
-                ->everySeconds(0.1)
+                ->exec("(echo 'called' >> '{$this->getTempFilePath()}')")
+                ->everySeconds(0.2)
                 ->when(fn () => true)
         );
 
         $this
-            ->runShortScheduleForSeconds(0.19)
+            ->runShortScheduleForSeconds(0.29)
             ->assertTempFileContains('called', 1);
     }
 
@@ -85,7 +91,7 @@ class ShortScheduleTest extends TestCase
 
         TestKernel::registerShortScheduleCommand(
             fn (ShortSchedule $shortSchedule) => $shortSchedule
-                ->exec("echo 'called' >> '{$this->getTempFilePath()}'")
+                ->exec("(echo 'called' >> '{$this->getTempFilePath()}')")
                 ->everySeconds(0.05)
         );
 
@@ -103,7 +109,7 @@ class ShortScheduleTest extends TestCase
 
         TestKernel::registerShortScheduleCommand(
             fn (ShortSchedule $shortSchedule) => $shortSchedule
-                ->exec("echo 'called' >> '{$this->getTempFilePath()}'")
+                ->exec("(echo 'called' >> '{$this->getTempFilePath()}')")
                 ->everySeconds(0.05)
                 ->runInMaintenanceMode()
         );
@@ -118,12 +124,12 @@ class ShortScheduleTest extends TestCase
     /** @test **/
     public function do_not_run_if_already_running_on_another_server()
     {
-        $key = 'framework'.DIRECTORY_SEPARATOR.'schedule-'.sha1('0.05'."echo 'called' >> '{$this->getTempFilePath()}'");
+        $key = 'framework'.DIRECTORY_SEPARATOR.'schedule-'.sha1('0.05'."(echo 'called' >> '{$this->getTempFilePath()}')onOneServer");
         Cache::add($key, true, 60);
 
         TestKernel::registerShortScheduleCommand(
             fn (ShortSchedule $shortSchedule) => $shortSchedule
-                ->exec("echo 'called' >> '{$this->getTempFilePath()}'")
+                ->exec("(echo 'called' >> '{$this->getTempFilePath()}')")
                 ->everySeconds(0.05)
                 ->onOneServer()
         );
@@ -133,12 +139,34 @@ class ShortScheduleTest extends TestCase
             ->assertTempFileContains('called', 0);
     }
 
+    /** @test **/
+    public function do_not_run_if_already_running_on_another_server_or_prevent_overlaps()
+    {
+        $key = 'framework'.DIRECTORY_SEPARATOR.'schedule-'.sha1('1'."(echo 'called' >> '{$this->getTempFilePath()}')");
+        $keyOnOneserver = 'framework'.DIRECTORY_SEPARATOR.'schedule-'.sha1('1'."(echo 'called' >> '{$this->getTempFilePath()}')onOneServer");
+        Cache::put($key, true, 10);
+        Cache::put($keyOnOneserver, true, 1);
+
+        TestKernel::registerShortScheduleCommand(
+            fn (ShortSchedule $shortSchedule) => $shortSchedule
+                ->exec("(echo 'called' >> '{$this->getTempFilePath()}')")
+                ->everySeconds(1)
+                ->withoutOverlapping()
+                ->onOneServer()
+                ->runInBackground()
+        );
+
+        $this
+            ->runShortScheduleForSeconds(2.9)
+            ->assertTempFileContains('called', 0);
+    }
+
     /** @test */
     public function do_not_write_to_console()
     {
         TestKernel::registerShortScheduleCommand(
             fn (ShortSchedule $shortSchedule) => $shortSchedule
-                ->exec("echo 'called' >> '{$this->getTempFilePath()}'")
+                ->exec("(echo 'called' >> '{$this->getTempFilePath()}')")
                 ->everySeconds(0.05)
         );
 
@@ -154,7 +182,7 @@ class ShortScheduleTest extends TestCase
     {
         TestKernel::registerShortScheduleCommand(
             fn (ShortSchedule $shortSchedule) => $shortSchedule
-                ->exec("echo 'called' >> '{$this->getTempFilePath()}'")
+                ->exec("(echo 'called' >> '{$this->getTempFilePath()}')")
                 ->everySeconds(0.05)
                 ->verbose()
         );
@@ -169,19 +197,23 @@ class ShortScheduleTest extends TestCase
     /** @test */
     public function write_to_console_prevent_overlaps()
     {
+        $key = 'framework'.DIRECTORY_SEPARATOR.'schedule-'.sha1('0.1'."(echo 'called' >> '{$this->getTempFilePath()}')");
+        Cache::add($key, true, 60);
+
         TestKernel::registerShortScheduleCommand(
             fn (ShortSchedule $shortSchedule) => $shortSchedule
-                ->exec("echo 'called' >> '{$this->getTempFilePath()}'; sleep 0.2")
+                ->exec("(echo 'called' >> '{$this->getTempFilePath()}')")
                 ->everySeconds(0.1)
                 ->withoutOverlapping()
                 ->verbose()
+                ->runInBackground()
         );
 
         $this->expectOutputRegex('/.*Skipping command \(still is running\).*/i');
 
         $this
             ->runShortScheduleForSeconds(0.29)
-            ->assertTempFileContains('called', 1);
+            ->assertTempFileContains('called', 0);
     }
 
     /** @test **/
@@ -191,7 +223,7 @@ class ShortScheduleTest extends TestCase
 
         TestKernel::registerShortScheduleCommand(
             fn (ShortSchedule $shortSchedule) => $shortSchedule
-                ->exec("echo 'called' >> '{$this->getTempFilePath()}'")
+                ->exec("(echo 'called' >> '{$this->getTempFilePath()}')")
                 ->everySeconds(0.05)
                 ->verbose()
         );
@@ -208,12 +240,12 @@ class ShortScheduleTest extends TestCase
     /** @test **/
     public function write_to_console_if_already_running_on_another_server()
     {
-        $key = 'framework'.DIRECTORY_SEPARATOR.'schedule-'.sha1('0.05'."echo 'called' >> '{$this->getTempFilePath()}'");
+        $key = 'framework'.DIRECTORY_SEPARATOR.'schedule-'.sha1('0.05'."(echo 'called' >> '{$this->getTempFilePath()}')onOneServer");
         Cache::add($key, true, 60);
 
         TestKernel::registerShortScheduleCommand(
             fn (ShortSchedule $shortSchedule) => $shortSchedule
-                ->exec("echo 'called' >> '{$this->getTempFilePath()}'")
+                ->exec("(echo 'called' >> '{$this->getTempFilePath()}')")
                 ->everySeconds(0.05)
                 ->onOneServer()
                 ->verbose()
@@ -231,7 +263,7 @@ class ShortScheduleTest extends TestCase
     {
         TestKernel::registerShortScheduleCommand(
             fn (ShortSchedule $shortSchedule) => $shortSchedule
-                ->exec("echo 'called' >> '{$this->getTempFilePath()}'")
+                ->exec("(echo 'called' >> '{$this->getTempFilePath()}')")
                 ->everySeconds(0.05)
                 ->verbose()
         );
@@ -241,5 +273,24 @@ class ShortScheduleTest extends TestCase
         $this
             ->runShortScheduleForSeconds(0.06)
             ->assertTempFileContains('called', 1);
+    }
+
+    /** @test */
+    public function test_finish_command()
+    {
+        $key = 'framework'.DIRECTORY_SEPARATOR.'schedule-'.sha1('0.2'."(echo 'called' >> '{$this->getTempFilePath()}')");
+        Cache::add($key, true, 60);
+
+        TestKernel::registerShortScheduleCommand(
+            fn (ShortSchedule $shortSchedule) => $shortSchedule
+                ->exec("(echo 'called' >> '{$this->getTempFilePath()}')")
+                ->everySeconds(0.2)
+        );
+
+        $this
+            ->runShortScheduleForSeconds(0.29)
+            ->assertTempFileContains('called', 1)
+            ->runShortScheduleFinishCommand($key)
+            ->assertFalse(Cache::has($key));
     }
 }
