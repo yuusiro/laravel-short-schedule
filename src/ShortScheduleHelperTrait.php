@@ -11,7 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 trait ShortScheduleHelperTrait
 {
     protected int $count = 0;
-    
+
     private function write($string, $style = null): void
     {
         if (App::environment('testing') && $this->pendingShortScheduleCommand->verbosity === OutputInterface::VERBOSITY_NORMAL) {
@@ -29,7 +29,7 @@ trait ShortScheduleHelperTrait
 
     private function getExectution(): string
     {
-        return PHP_EOL.'Execution #'.(++$this->count).' in '.now()->isoFormat('L LTS').' output:';
+        return PHP_EOL.'Execution #'.(++$this->count).' in '.now()->isoFormat('L LTS.SSS').' output:';
     }
 
     private function createLock(bool $onOneServer = false): bool
