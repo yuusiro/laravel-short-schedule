@@ -3,21 +3,19 @@
 namespace Spatie\ShortSchedule;
 
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Cache;
 use Spatie\ShortSchedule\Events\ShortScheduledTaskStarted;
 use Spatie\ShortSchedule\Events\ShortScheduledTaskStarting;
 use Spatie\ShortSchedule\Events\ShortScheduledTaskFinished;
 use Symfony\Component\Console\Output\ConsoleOutput;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
 
 class ShortScheduleCommand extends PendingShortScheduleCommand
 {
+    use ShortScheduleHelperTrait;
+
     protected PendingShortScheduleCommand $pendingShortScheduleCommand;
 
     protected ?Process $process = null;
-
-    protected int $count = 0;
 
     protected string $output = '/dev/null';
 
@@ -56,7 +54,7 @@ class ShortScheduleCommand extends PendingShortScheduleCommand
         return $this->output;
     }
 
-    public function getCacheName()
+    public function getCacheName(): string
     {
         return $this->pendingShortScheduleCommand->cacheName();
     }
@@ -71,12 +69,6 @@ class ShortScheduleCommand extends PendingShortScheduleCommand
             return false;
         }
 
-        if ($this->shouldRunOnOneServer()) {
-            $this->write("Skipping command (has already run on another server): {$commandString}", 'comment');
-
-            return false;
-        }
-
         if ($this->isRunning() && (! $this->pendingShortScheduleCommand->allowOverlaps)) {
             $this->write("Skipping command (still is running): {$commandString}", 'comment');
 
@@ -84,6 +76,12 @@ class ShortScheduleCommand extends PendingShortScheduleCommand
         }
 
         if (! $this->pendingShortScheduleCommand->shouldRun()) {
+            return false;
+        }
+
+        if ($this->shouldRunOnOneServer()) {
+            $this->write("Skipping command (has already run on another server): {$commandString}", 'comment');
+
             return false;
         }
 
@@ -155,46 +153,5 @@ class ShortScheduleCommand extends PendingShortScheduleCommand
         if (! $this->pendingShortScheduleCommand->runInBackground) {
             $this->fogetLock();
         }
-    }
-
-    private function getExectution(): string
-    {
-        return PHP_EOL.'Execution #'.(++$this->count).' in '.now()->isoFormat('L LTS').' output:';
-    }
-
-    private function write($string, $style = null): void
-    {
-        if (App::environment('testing') && $this->pendingShortScheduleCommand->verbosity === OutputInterface::VERBOSITY_NORMAL) {
-            echo $this->getExectution().$string;
-
-            return;
-        }
-
-        $this->console->writeln('<info>'.$this->getExectution().'</info>');
-
-        $styled = $style ? "<$style>$string</$style>" : $string;
-
-        $this->console->writeln($styled);
-    }
-
-    private function createLock($onOneServer = false): bool
-    {
-        $cacheName = $onOneServer ? $this->pendingShortScheduleCommand->cacheNameOnOneServer() : $this->getCacheName();
-
-        return Cache::add($cacheName, true, $onOneServer ? $this->frequencyInSeconds() : 60);
-    }
-
-    private function existsLock($onOneServer = false): bool
-    {
-        $cacheName = $onOneServer ? $this->pendingShortScheduleCommand->cacheNameOnOneServer() : $this->getCacheName();
-
-        return Cache::has($cacheName);
-    }
-
-    private function fogetLock($onOneServer = false): bool
-    {
-        $cacheName = $onOneServer ? $this->pendingShortScheduleCommand->cacheNameOnOneServer() : $this->getCacheName();
-
-        return Cache::forget($cacheName);
     }
 }

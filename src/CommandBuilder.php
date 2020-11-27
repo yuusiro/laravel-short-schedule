@@ -47,7 +47,7 @@ class CommandBuilder
 
         $redirect = ' > ';
 
-        $finished = $command->formatCommandString('short-schedule:finish').' "'.$command->getCacheName().'"';
+        $finished = Application::formatCommandString('short-schedule:finish').' "'.$command->getCacheName().'"';
 
         return '('.$command->getCommand().$redirect.$output.' 2>&1 ; '.$finished.' "$?") > '
             .$output.' 2>&1 &';

@@ -142,9 +142,8 @@ class ShortScheduleTest extends TestCase
     /** @test **/
     public function do_not_run_if_already_running_on_another_server_or_prevent_overlaps()
     {
-        $key = 'framework'.DIRECTORY_SEPARATOR.'schedule-'.sha1('1'."(echo 'called' >> '{$this->getTempFilePath()}')");
+        $key = 'framework'.DIRECTORY_SEPARATOR.'schedule-'.sha1('0.5'."(echo 'called' >> '{$this->getTempFilePath()}')");
         $keyOnOneserver = 'framework'.DIRECTORY_SEPARATOR.'schedule-'.sha1('1'."(echo 'called' >> '{$this->getTempFilePath()}')onOneServer");
-        Cache::put($key, true, 10);
         Cache::put($keyOnOneserver, true, 1);
 
         TestKernel::registerShortScheduleCommand(
@@ -157,7 +156,22 @@ class ShortScheduleTest extends TestCase
         );
 
         $this
-            ->runShortScheduleForSeconds(2.9)
+            ->runShortScheduleForSeconds(1.9)
+            ->assertTempFileContains('called', 0);
+
+        Cache::put($key, true, 10);
+
+        TestKernel::registerShortScheduleCommand(
+            fn (ShortSchedule $shortSchedule) => $shortSchedule
+                ->exec("(echo 'called' >> '{$this->getTempFilePath()}')")
+                ->everySeconds(0.5)
+                ->withoutOverlapping()
+                ->onOneServer()
+                ->runInBackground()
+        );
+
+        $this
+            ->runShortScheduleForSeconds(0.6)
             ->assertTempFileContains('called', 0);
     }
 

@@ -10,7 +10,7 @@ use Spatie\ShortSchedule\RunConstraints\EnvironmentConstraint;
 use Spatie\ShortSchedule\RunConstraints\RunConstraint;
 use Spatie\ShortSchedule\RunConstraints\WhenConstraint;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Process\PhpExecutableFinder;
+use Illuminate\Console\Application;
 
 class PendingShortScheduleCommand
 {
@@ -44,7 +44,7 @@ class PendingShortScheduleCommand
 
     public function command(string $artisanCommand):self
     {
-        $this->command = $this->formatCommandString($artisanCommand);
+        $this->command = Application::formatCommandString($artisanCommand);
 
         return $this;
     }
@@ -142,36 +142,5 @@ class PendingShortScheduleCommand
     public function cacheNameOnOneServer(): string
     {
         return 'framework'.DIRECTORY_SEPARATOR.'schedule-'.sha1($this->frequencyInSeconds.$this->command.'onOneServer');
-    }
-
-    /**
-     * Format the given command as a fully-qualified executable command.
-     *
-     * @param  string  $string
-     * @return string
-     */
-    public function formatCommandString($string)
-    {
-        return sprintf('%s %s %s', $this->phpBinary(), $this->artisanBinary(), $string);
-    }
-
-    /**
-     * Determine the proper PHP executable.
-     *
-     * @return string
-     */
-    private function phpBinary()
-    {
-        return ProcessUtils::escapeArgument((new PhpExecutableFinder)->find(false));
-    }
-
-    /**
-     * Determine the proper Artisan executable.
-     *
-     * @return string
-     */
-    private function artisanBinary()
-    {
-        return defined('ARTISAN_BINARY') ? ProcessUtils::escapeArgument(ARTISAN_BINARY) : 'artisan';
     }
 }
