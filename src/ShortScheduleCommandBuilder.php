@@ -5,7 +5,7 @@ namespace Spatie\ShortSchedule;
 use Illuminate\Console\Application;
 use Illuminate\Support\ProcessUtils;
 
-class CommandBuilder
+class ShortScheduleCommandBuilder
 {
     /**
      * Build the command.

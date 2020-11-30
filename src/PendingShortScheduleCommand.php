@@ -129,11 +129,6 @@ class PendingShortScheduleCommand
         return $this;
     }
 
-    public function getOnOneServer(): bool
-    {
-        return $this->onOneServer;
-    }
-
     public function cacheName(): string
     {
         return 'framework'.DIRECTORY_SEPARATOR.'schedule-'.sha1($this->frequencyInSeconds.$this->command);

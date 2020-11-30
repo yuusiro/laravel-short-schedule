@@ -3,16 +3,15 @@
 namespace Spatie\ShortSchedule;
 
 use Illuminate\Support\Facades\App;
+use Spatie\ShortSchedule\Cache\ShortScheduleCache;
+use Spatie\ShortSchedule\Cache\ShortScheduleOnOneServerCache;
 use Spatie\ShortSchedule\Events\ShortScheduledTaskStarted;
 use Spatie\ShortSchedule\Events\ShortScheduledTaskStarting;
 use Spatie\ShortSchedule\Events\ShortScheduledTaskFinished;
-use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Process\Process;
 
 class ShortScheduleCommand extends PendingShortScheduleCommand
 {
-    use ShortScheduleHelperTrait;
-
     protected PendingShortScheduleCommand $pendingShortScheduleCommand;
 
     protected ?Process $process = null;
@@ -21,10 +20,18 @@ class ShortScheduleCommand extends PendingShortScheduleCommand
 
     protected ?int $exitCode;
 
+    protected ShortScheduleCache $cache;
+
+    protected ShortScheduleOnOneServerCache $cacheOnOneServer;
+
+    protected ShortScheduleConsoleOutput $console;
+
     public function __construct(PendingShortScheduleCommand $pendingShortScheduleCommand)
     {
         $this->pendingShortScheduleCommand = $pendingShortScheduleCommand;
-        $this->console = new ConsoleOutput($pendingShortScheduleCommand->verbosity);
+        $this->console = new ShortScheduleConsoleOutput($pendingShortScheduleCommand->verbosity);
+        $this->cache = App::make(ShortScheduleCache::class);
+        $this->cacheOnOneServer = App::make(ShortScheduleOnOneServerCache::class);
 
         $this->output = $this->getDefaultOutput();
     }
@@ -59,18 +66,28 @@ class ShortScheduleCommand extends PendingShortScheduleCommand
         return $this->pendingShortScheduleCommand->cacheName();
     }
 
+    public function getCacheNameOnOneServer(): string
+    {
+        return $this->pendingShortScheduleCommand->cacheNameOnOneServer();
+    }
+
+    public function getOnOneServer(): bool
+    {
+        return $this->pendingShortScheduleCommand->onOneServer;
+    }
+
     public function shouldRun(): bool
     {
         $commandString = $this->buildCommand();
 
         if (App::isDownForMaintenance() && (! $this->pendingShortScheduleCommand->evenInMaintenanceMode)) {
-            $this->write("Skipping command (system is down): {$commandString}", 'comment');
+            $this->console->write("Skipping command (system is down): {$commandString}", 'comment');
 
             return false;
         }
 
         if ($this->isRunning() && (! $this->pendingShortScheduleCommand->allowOverlaps)) {
-            $this->write("Skipping command (still is running): {$commandString}", 'comment');
+            $this->console->write("Skipping command (still is running): {$commandString}", 'comment');
 
             return false;
         }
@@ -80,7 +97,7 @@ class ShortScheduleCommand extends PendingShortScheduleCommand
         }
 
         if ($this->shouldRunOnOneServer()) {
-            $this->write("Skipping command (has already run on another server): {$commandString}", 'comment');
+            $this->console->write("Skipping command (has already run on another server): {$commandString}", 'comment');
 
             return false;
         }
@@ -90,7 +107,7 @@ class ShortScheduleCommand extends PendingShortScheduleCommand
 
     public function isRunning(): bool
     {
-        if ($this->existsLock()) {
+        if ($this->cache->existsLock($this)) {
             return true;
         }
 
@@ -103,55 +120,74 @@ class ShortScheduleCommand extends PendingShortScheduleCommand
 
     public function run(): void
     {
-        $this->pendingShortScheduleCommand->getOnOneServer() ? $this->processOnOneServer() : $this->processCommand() ;
+        $this->getOnOneServer() ? $this->processOnOneServer() : $this->processCommand() ;
     }
 
     public function callAfterEndedBackgroundCommand($exitCode)
     {
         $this->exitCode = (int) $exitCode;
 
-        $this->fogetLock();
+        $this->cache->fogetLock($this);
     }
 
     protected function buildCommand()
     {
-        return (new CommandBuilder())->buildCommand($this);
+        return (new ShortScheduleCommandBuilder())->buildCommand($this);
     }
 
     protected function shouldRunOnOneServer(): bool
     {
-        return $this->pendingShortScheduleCommand->getOnOneServer()
-               && $this->existsLock(true);
+        return $this->getOnOneServer()
+               && $this->cacheOnOneServer->existsLock($this);
     }
 
     protected function processOnOneServer(): void
     {
-        $this->createLock(true);
+        $this->cacheOnOneServer->createLock($this);
 
         $this->processCommand();
     }
 
     private function processCommand(): void
     {
-        if (! $this->pendingShortScheduleCommand->allowOverlaps) {
-            $this->createLock();
-        }
-
         $commandString = $this->buildCommand();
         $this->process = Process::fromShellCommandline($commandString, base_path(), null, null, null);
 
-        $this->write("Running command: {$commandString}");
+        $this->callBeforeStart($commandString);
 
-        event(new ShortScheduledTaskStarting($commandString, $this->process));
         $this->process->start();
-        event(new ShortScheduledTaskStarted($commandString, $this->process));
+
+        $this->callAfterStarting($commandString);
+
         $this->process->wait();
-        event(new ShortScheduledTaskFinished($commandString, $this->process));
+
+        $this->callAfterEnd($commandString);
+    }
+
+    private function callBeforeStart(string $command): void
+    {
+        if (! $this->pendingShortScheduleCommand->allowOverlaps) {
+            $this->cache->createLock($this);
+        }
+
+        $this->console->write("Running command: {$command}");
+
+        event(new ShortScheduledTaskStarting($command, $this->process));
+    }
+
+    private function callAfterStarting(string $command): void
+    {
+        event(new ShortScheduledTaskStarted($command, $this->process));
+    }
+
+    private function callAfterEnd(string $command): void
+    {
+        event(new ShortScheduledTaskFinished($command, $this->process));
 
         $this->exitCode = $this->process->getExitCode();
 
-        if (! $this->pendingShortScheduleCommand->runInBackground) {
-            $this->fogetLock();
+        if (! $this->pendingShortScheduleCommand->allowOverlaps && ! $this->pendingShortScheduleCommand->runInBackground) {
+            $this->cache->fogetLock($this);
         }
     }
 }
