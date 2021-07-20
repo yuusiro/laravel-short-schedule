@@ -193,6 +193,14 @@ Limit commands to only run on one server at a time.
 $shortSchedule->command('artisan-command')->everySecond()->onOneServer();
 ```
 
+### Running in background
+
+Commands will run in the background.
+
+```php
+$shortSchedule->command('artisan-command')->everySecond()->runInBackground();
+```
+
 ### Write verbose to console
 
 The console will write which command was executed and when. It will also write why the command was skipped.
@@ -227,7 +235,14 @@ This event will be fired right before a task will be started. It has these publi
 
 #### `Spatie\ShortSchedule\Events\ShortScheduledTaskStarted`
 
-This event will be fired right before a task has been started. It has these public properties:
+This event will be fired right after a task has been started. It has these public properties:
+
+- `command`: the command string that is being executed
+- `process`: the instance of `Symfony\Component\Process\Process` that is executing the command
+
+#### `Spatie\ShortSchedule\Events\ShortScheduledTaskFinished`
+
+This event will be fired right after a task has been finished. It has these public properties:
 
 - `command`: the command string that is being executed
 - `process`: the instance of `Symfony\Component\Process\Process` that is executing the command
