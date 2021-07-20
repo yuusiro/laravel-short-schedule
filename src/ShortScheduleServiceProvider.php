@@ -13,7 +13,7 @@ class ShortScheduleServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 ShortScheduleRunCommand::class,
-                ShortScheduleFinishCommand::class
+                ShortScheduleFinishCommand::class,
             ]);
         }
     }

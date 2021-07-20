@@ -3,7 +3,6 @@
 
 namespace Spatie\ShortSchedule;
 
-
 use Illuminate\Support\Facades\App;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;

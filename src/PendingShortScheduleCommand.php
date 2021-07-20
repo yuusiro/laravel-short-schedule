@@ -3,14 +3,13 @@
 namespace Spatie\ShortSchedule;
 
 use Closure;
+use Illuminate\Console\Application;
 use Illuminate\Support\Arr;
-use Illuminate\Support\ProcessUtils;
 use Spatie\ShortSchedule\RunConstraints\BetweenConstraint;
 use Spatie\ShortSchedule\RunConstraints\EnvironmentConstraint;
 use Spatie\ShortSchedule\RunConstraints\RunConstraint;
 use Spatie\ShortSchedule\RunConstraints\WhenConstraint;
 use Symfony\Component\Console\Output\OutputInterface;
-use Illuminate\Console\Application;
 
 class PendingShortScheduleCommand
 {

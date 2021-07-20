@@ -2,7 +2,6 @@
 
 namespace Spatie\ShortSchedule\Tests\Feature;
 
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 use Spatie\ShortSchedule\ShortSchedule;
 use Spatie\ShortSchedule\Tests\TestCase;

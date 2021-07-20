@@ -5,9 +5,9 @@ namespace Spatie\ShortSchedule;
 use Illuminate\Support\Facades\App;
 use Spatie\ShortSchedule\Cache\ShortScheduleCache;
 use Spatie\ShortSchedule\Cache\ShortScheduleOnOneServerCache;
+use Spatie\ShortSchedule\Events\ShortScheduledTaskFinished;
 use Spatie\ShortSchedule\Events\ShortScheduledTaskStarted;
 use Spatie\ShortSchedule\Events\ShortScheduledTaskStarting;
-use Spatie\ShortSchedule\Events\ShortScheduledTaskFinished;
 use Symfony\Component\Process\Process;
 
 class ShortScheduleCommand extends PendingShortScheduleCommand

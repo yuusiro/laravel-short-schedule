@@ -3,7 +3,6 @@
 
 namespace Spatie\ShortSchedule\Cache;
 
-
 use Illuminate\Support\Facades\Cache;
 use Spatie\ShortSchedule\ShortScheduleCommand;
 
