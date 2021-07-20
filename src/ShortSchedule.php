@@ -15,6 +15,8 @@ class ShortSchedule
 
     protected array $pendingCommands = [];
 
+    protected ?int $lifetime = null;
+
     public function __construct(LoopInterface $loop)
     {
         $this->loop = $loop;
@@ -61,11 +63,19 @@ class ShortSchedule
             });
     }
 
-    public function run(): void
+    public function run(int $lifetime = null): void
     {
+        if (! is_null($lifetime)) {
+            $this->lifetime = $lifetime;
+        }
+
         $this->pendingCommands()->each(function (ShortScheduleCommand $command) {
             $this->addCommandToLoop($command, $this->loop);
         });
+
+        if (! is_null($this->lifetime)) {
+            $this->addLoopTerminationTimer($this->loop);
+        }
 
         $this->loop->run();
     }
@@ -78,6 +88,13 @@ class ShortSchedule
             }
 
             $command->run();
+        });
+    }
+
+    protected function addLoopTerminationTimer(LoopInterface $loop): void
+    {
+        $loop->addPeriodicTimer($this->lifetime,  function () use ($loop) {
+            $loop->stop();
         });
     }
 }

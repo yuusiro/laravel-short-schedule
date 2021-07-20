@@ -2,6 +2,24 @@
 
 All notable changes to `laravel-short-schedule` will be documented in this file
 
+## 1.4.2 - 2021-06-11
+
+- allow spatie/temporary-directory 2.* (#35)
+
+
+## 1.4.1 - 2021-06-04
+
+- do not set a default lifetime for production
+
+
+## 1.4.0 - 2021-05-31
+
+- add lifetime option
+
+## 1.3.0 - 2020-12-24
+
+- add PHP8 support (#25)
+
 ## 1.2.2 - 2020-09-08
 
 - add support for Laravel 8

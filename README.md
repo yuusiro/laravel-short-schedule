@@ -2,7 +2,6 @@
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/spatie/laravel-short-schedule.svg?style=flat-square)](https://packagist.org/packages/spatie/laravel-short-schedule)
 ![Tests](https://github.com/spatie/laravel-short-schedule/workflows/Tests/badge.svg)
-![Psalm](https://github.com/spatie/laravel-short-schedule/workflows/Psalm/badge.svg)
 [![Total Downloads](https://img.shields.io/packagist/dt/spatie/laravel-short-schedule.svg?style=flat-square)](https://packagist.org/packages/spatie/laravel-short-schedule)
 
 [Laravel's native scheduler](https://laravel.com/docs/master/scheduling) allows you to schedule Artisan commands to run every minute. 
@@ -59,6 +58,15 @@ php artisan short-schedule:run
 
 You should use a process monitor like [Supervisor](http://supervisord.org/index.html) to keep this task going at all times, and to automatically start it when your server boots. Whenever you change the schedule, you should restart this command.
 
+## Handle memory leaks
+
+To deal with commands that leak memory, you can set the lifetime in seconds of the short schedule worker:
+
+```bash
+php artisan short-schedule:run --lifetime=60 // after 1 minute the worker will be terminated
+```
+After the given amount of seconds, the worker and all it's child processes will be terminated, freeing all memory. Then supervisor (or similar watcher) will bring it back.
+
 ### Lumen
 
 Before you can run the `php artisan short-schedule:run` command in your Lumen project, you should make a copy of the `ShortScheduleRunCommand` into your `app/Commands` folder:
@@ -108,7 +116,7 @@ $shortSchedule->command('artisan-command')->everySeconds(0.5);
  Use `exec` to schedule a bash command.
  
 ```php
-$shortSchedule->bash('bash-command')->everySecond();
+$shortSchedule->exec('bash-command')->everySecond();
 ```
  
  ### Preventing overlaps
