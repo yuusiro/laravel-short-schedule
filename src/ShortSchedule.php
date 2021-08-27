@@ -3,6 +3,7 @@
 namespace Spatie\ShortSchedule;
 
 use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Traits\Macroable;
 use React\EventLoop\LoopInterface;
 use ReflectionClass;
@@ -77,6 +78,8 @@ class ShortSchedule
             $this->addLoopTerminationTimer($this->loop);
         }
 
+        $this->addLoopCheckRetsart($this->loop);
+
         $this->loop->run();
     }
 
@@ -96,5 +99,37 @@ class ShortSchedule
         $loop->addPeriodicTimer($this->lifetime,  function () use ($loop) {
             $loop->stop();
         });
+    }
+
+    protected function addLoopCheckRetsart(LoopInterface $loop): void
+    {
+        $lastRestart = $this->getTimestampOfLastShortScheduleRestart();
+
+        $loop->addPeriodicTimer(5,  function () use ($loop, $lastRestart) {
+            if ($this->shortScheduleShouldRestart($lastRestart)) {
+                $loop->stop();
+            }
+        });
+    }
+
+    /**
+     * Determine if the queue worker should restart.
+     *
+     * @param  int|null  $lastRestart
+     * @return bool
+     */
+    protected function shortScheduleShouldRestart($lastRestart)
+    {
+        return $this->getTimestampOfLastShortScheduleRestart() != $lastRestart;
+    }
+
+    /**
+     * Get the last queue restart timestamp, or null.
+     *
+     * @return int|null
+     */
+    protected function getTimestampOfLastShortScheduleRestart()
+    {
+        return Cache::get('spatie:laravel-short-schedule:restart');
     }
 }
