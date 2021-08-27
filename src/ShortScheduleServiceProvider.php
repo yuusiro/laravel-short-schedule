@@ -15,7 +15,7 @@ class ShortScheduleServiceProvider extends ServiceProvider
             $this->commands([
                 ShortScheduleRunCommand::class,
                 ShortScheduleFinishCommand::class,
-                ShortScheduleRestartCommand::class
+                ShortScheduleRestartCommand::class,
             ]);
         }
     }
