@@ -2,6 +2,7 @@
 
 [![Latest Stable Version](https://badgen.net/packagist/v/dima-bzz/laravel-short-schedule?cache=300)](https://packagist.org/packages/dima-bzz/laravel-short-schedule)
 ![Tests](https://github.com/dima-bzz/laravel-short-schedule/workflows/Tests/badge.svg)
+[![GitHub Code Style Action Status](https://img.shields.io/github/workflow/status/dima-bzz/laravel-short-schedule/Check%20&%20fix%20styling?label=code%20style)](https://github.com/dima-bzz/laravel-short-schedule/actions?query=workflow%3A"Check+%26+fix+styling"+branch%3Amaster)
 [![Total Downloads](https://badgen.net/packagist/dt/dima-bzz/laravel-short-schedule?cache=300)](https://packagist.org/packages/dima-bzz/laravel-short-schedule)
 
 [Laravel's native scheduler](https://laravel.com/docs/master/scheduling) allows you to schedule Artisan commands to run every minute. 
