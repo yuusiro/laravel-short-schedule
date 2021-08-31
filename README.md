@@ -58,6 +58,13 @@ php artisan short-schedule:run
 
 You should use a process monitor like [Supervisor](http://supervisord.org/index.html) to keep this task going at all times, and to automatically start it when your server boots. Whenever you change the schedule, you should restart this command.
 
+## Restart worker daemon
+Whenever you change the schedule, you should run this command. This command send broadcast message to restart worker deamon.
+
+```bash
+php artisan short-schedule:restart
+```
+
 ## Handle memory leaks
 
 To deal with commands that leak memory, you can set the lifetime in seconds of the short schedule worker:

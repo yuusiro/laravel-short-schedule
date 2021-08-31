@@ -22,19 +22,19 @@ class ShortScheduleRestartCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Restart short-schedule worker daemons after their current job';
+    protected $description = 'Restart short-schedule worker daemon';
 
     /**
      * The cache store implementation.
      *
-     * @var \Illuminate\Contracts\Cache\Repository
+     * @var Cache
      */
     protected $cache;
 
     /**
      * Create a new queue restart command.
      *
-     * @param  \Illuminate\Contracts\Cache\Repository  $cache
+     * @param  Cache  $cache
      * @return void
      */
     public function __construct(Cache $cache)

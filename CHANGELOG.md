@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-short-schedule` will be documented in this file
 
+## 1.4.5 - 2021-08-31
+
+- updated description for restart command and update Readme
+
 ## 1.4.4 - 2021-08-31
 
 - updated composer.json and Readme
