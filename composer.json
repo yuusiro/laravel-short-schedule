@@ -1,13 +1,20 @@
 {
-    "name": "spatie/laravel-short-schedule",
+    "name": "dimabzz/laravel-short-schedule",
     "description": "Schedule artisan commands to run using a sub-minute frequency",
     "keywords": [
+        "dima-bzz",
         "spatie",
         "laravel-short-schedule"
     ],
-    "homepage": "https://github.com/spatie/laravel-short-schedule",
+    "homepage": "https://github.com/dima-bzz/laravel-short-schedule",
     "license": "MIT",
     "authors": [
+        {
+            "name": "Dmitry Mazurov",
+            "email": "freek@spatie.be",
+            "homepage": "https://github.com/dima-bzz",
+            "role": "Developer"
+        },
         {
             "name": "Freek Van der Herten",
             "email": "freek@spatie.be",
