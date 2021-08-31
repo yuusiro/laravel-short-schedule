@@ -1,8 +1,8 @@
 # Schedule artisan commands to run at a sub-minute frequency
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/spatie/laravel-short-schedule.svg?style=flat-square)](https://packagist.org/packages/spatie/laravel-short-schedule)
-![Tests](https://github.com/spatie/laravel-short-schedule/workflows/Tests/badge.svg)
-[![Total Downloads](https://img.shields.io/packagist/dt/spatie/laravel-short-schedule.svg?style=flat-square)](https://packagist.org/packages/spatie/laravel-short-schedule)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/dima-bzz/laravel-short-schedule.svg?style=flat-square)](https://packagist.org/packages/spatie/laravel-short-schedule)
+![Tests](https://github.com/dima-bzz/laravel-short-schedule/workflows/Tests/badge.svg)
+[![Total Downloads](https://img.shields.io/packagist/dt/dima-bzz/laravel-short-schedule.svg?style=flat-square)](https://packagist.org/packages/spatie/laravel-short-schedule)
 
 [Laravel's native scheduler](https://laravel.com/docs/master/scheduling) allows you to schedule Artisan commands to run every minute. 
 
@@ -47,7 +47,7 @@ We highly appreciate you sending us a postcard from your hometown, mentioning wh
 You can install the package via composer:
 
 ```bash
-composer require spatie/laravel-short-schedule
+composer require dima-bzz/laravel-short-schedule
 ```
 
 In your production environment you can start the short scheduler with this command
@@ -72,7 +72,7 @@ After the given amount of seconds, the worker and all it's child processes will 
 Before you can run the `php artisan short-schedule:run` command in your Lumen project, you should make a copy of the `ShortScheduleRunCommand` into your `app/Commands` folder:
 
 ```bash
-cp ./vendor/spatie/laravel-short-schedule/src/Commands/ShortScheduleRunCommand.php ./app/Console/Commands/ShortScheduleRunCommand.php
+cp ./vendor/dima-bzz/laravel-short-schedule/src/Commands/ShortScheduleRunCommand.php ./app/Console/Commands/ShortScheduleRunCommand.php
 ```
 
 Next, edit the new `ShortScheduleRunCommand.php` file, and change the namespace from `namespace Spatie\ShortSchedule\Commands;` to `namespace App\Console\Commands;` and you're good to go!
