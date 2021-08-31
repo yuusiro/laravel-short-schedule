@@ -1,8 +1,8 @@
 {
-    "name": "dima-bzz/laravel-short-schedule",
+    "name": "dimabzz/laravel-short-schedule",
     "description": "Schedule artisan commands to run using a sub-minute frequency",
     "keywords": [
-        "dima-bzz",
+        "dimabzz",
         "spatie",
         "laravel-short-schedule"
     ],
