@@ -1,8 +1,8 @@
 # Schedule artisan commands to run at a sub-minute frequency
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/dima-bzz/laravel-short-schedule.svg?style=flat-square)](https://packagist.org/packages/dima-bzz/laravel-short-schedule)
+[![Latest Stable Version](https://badgen.net/packagist/v/dima-bzz/laravel-short-schedule?cache=300)](https://packagist.org/packages/dima-bzz/laravel-short-schedule)
 ![Tests](https://github.com/dima-bzz/laravel-short-schedule/workflows/Tests/badge.svg)
-[![Total Downloads](https://img.shields.io/packagist/dt/dima-bzz/laravel-short-schedule.svg?style=flat-square)](https://packagist.org/packages/dima-bzz/laravel-short-schedule)
+[![Total Downloads](https://badgen.net/packagist/dt/dima-bzz/laravel-short-schedule?cache=300)](https://packagist.org/packages/dima-bzz/laravel-short-schedule)
 
 [Laravel's native scheduler](https://laravel.com/docs/master/scheduling) allows you to schedule Artisan commands to run every minute. 
 
