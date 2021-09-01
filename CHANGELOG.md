@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-short-schedule` will be documented in this file
 
+## 1.4.6 - 2021-09-01
+
+- added an output message to the console when starting and restarting the worker
+
 ## 1.4.5 - 2021-08-31
 
 - updated description for restart command and update Readme

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Traits\Macroable;
 use React\EventLoop\LoopInterface;
 use ReflectionClass;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class ShortSchedule
 {
@@ -18,9 +19,12 @@ class ShortSchedule
 
     protected ?int $lifetime = null;
 
+    protected ShortScheduleConsoleOutput $console;
+
     public function __construct(LoopInterface $loop)
     {
         $this->loop = $loop;
+        $this->console = new ShortScheduleConsoleOutput(OutputInterface::VERBOSITY_NORMAL);
     }
 
     public function command(string $command): PendingShortScheduleCommand
@@ -107,6 +111,7 @@ class ShortSchedule
 
         $loop->addPeriodicTimer(5,  function () use ($loop, $lastRestart) {
             if ($this->shortScheduleShouldRestart($lastRestart)) {
+                $this->console->info('Short-schedule worker restarted.');
                 $loop->stop();
             }
         });

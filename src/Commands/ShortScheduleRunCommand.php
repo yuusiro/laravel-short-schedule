@@ -14,6 +14,8 @@ class ShortScheduleRunCommand extends Command
 
     public function handle()
     {
+        $this->info('Short-schedule worker started successfully.');
+
         $loop = Factory::create();
 
         (new ShortSchedule($loop))->registerCommands()->run($this->option('lifetime'));

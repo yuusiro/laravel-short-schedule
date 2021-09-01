@@ -36,6 +36,11 @@ class ShortScheduleConsoleOutput
         $this->console->writeln($styled);
     }
 
+    public function info($string): void
+    {
+        $this->console->writeln('<info>'.$string.'</info>');
+    }
+
     private function getExectution(): string
     {
         return PHP_EOL.'Execution #'.(++$this->count).' in '.now()->isoFormat('L LTS.SSS').' output:';
