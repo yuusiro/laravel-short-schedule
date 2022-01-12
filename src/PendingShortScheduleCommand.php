@@ -41,8 +41,12 @@ class PendingShortScheduleCommand
         return $this;
     }
 
-    public function command(string $artisanCommand):self
+    public function command(string $artisanCommand): self
     {
+        if (class_exists($artisanCommand)) {
+            $artisanCommand = app($artisanCommand)->getName();
+        }
+
         $this->command = Application::formatCommandString($artisanCommand);
 
         return $this;
