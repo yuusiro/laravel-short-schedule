@@ -2,8 +2,8 @@
 
 namespace Spatie\ShortSchedule\Tests\Unit;
 
-use Illuminate\Console\Command;
 use Illuminate\Console\Application;
+use Illuminate\Console\Command;
 use Orchestra\Testbench\TestCase as Orchestra;
 use ReflectionClass;
 use Spatie\ShortSchedule\PendingShortScheduleCommand;
