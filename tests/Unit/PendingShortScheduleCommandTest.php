@@ -3,6 +3,7 @@
 namespace Spatie\ShortSchedule\Tests\Unit;
 
 use Illuminate\Console\Command;
+use Illuminate\Console\Application;
 use Orchestra\Testbench\TestCase as Orchestra;
 use ReflectionClass;
 use Spatie\ShortSchedule\PendingShortScheduleCommand;
@@ -20,7 +21,7 @@ class PendingShortScheduleCommandTest extends Orchestra
         $commandProperty->setAccessible(true);
 
         $artisanCommand = 'test-command';
-        $this->assertEquals(PHP_BINARY . " artisan {$artisanCommand}", $commandProperty->getValue($pendingCommand));
+        $this->assertEquals(Application::formatCommandString($artisanCommand), $commandProperty->getValue($pendingCommand));
     }
 }
 
