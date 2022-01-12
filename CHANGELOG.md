@@ -2,6 +2,12 @@
 
 All notable changes to `laravel-short-schedule` will be documented in this file
 
+## 1.4.7 - 2022-01-12
+
+- PendingShortScheduleCommand::command method will attempt to resolve command name if class name was given
+
+**Full Changelog**: https://github.com/dima-bzz/laravel-short-schedule/compare/1.4.6...1.4.7
+
 ## 1.4.6 - 2021-09-01
 
 - added an output message to the console when starting and restarting the worker
@@ -22,11 +28,9 @@ All notable changes to `laravel-short-schedule` will be documented in this file
 
 - allow spatie/temporary-directory 2.* (#35)
 
-
 ## 1.4.1 - 2021-06-04
 
 - do not set a default lifetime for production
-
 
 ## 1.4.0 - 2021-05-31
 
