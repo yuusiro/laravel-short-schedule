@@ -2,17 +2,17 @@
     "name": "yuusiro/laravel-short-schedule",
     "description": "Schedule artisan commands to run using a sub-minute frequency",
     "keywords": [
-        "dima-bzz",
+        "yuusiro",
         "spatie",
         "laravel-short-schedule"
     ],
-    "homepage": "https://github.com/dima-bzz/laravel-short-schedule",
+    "homepage": "https://github.com/yuusiro/laravel-short-schedule",
     "license": "MIT",
     "authors": [
         {
             "name": "Dmitry Mazurov",
             "email": "dimabzz@gmail.com",
-            "homepage": "https://github.com/dima-bzz",
+            "homepage": "https://github.com/yuusiro",
             "role": "Developer"
         },
         {
