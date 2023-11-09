@@ -11,14 +11,7 @@
     "authors": [
         {
             "name": "yuusiro",
-            "email": "dimabzz@gmail.com",
             "homepage": "https://github.com/yuusiro",
-            "role": "Developer"
-        },
-        {
-            "name": "Freek Van der Herten",
-            "email": "freek@spatie.be",
-            "homepage": "https://spatie.be",
             "role": "Developer"
         }
     ],
