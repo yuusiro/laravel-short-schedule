@@ -16,7 +16,7 @@
         }
     ],
     "require": {
-        "php": "^7.4|^8.0|^9.5|^10.0|^11.0",
+        "php": "^7.4|^8.0",
         "illuminate/cache": "^9.52|^10.0|^11.0",
         "react/event-loop": "^1.1",
         "spatie/temporary-directory": "^1.2|^2.0"
