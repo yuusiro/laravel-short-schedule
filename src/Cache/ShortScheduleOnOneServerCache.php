@@ -10,7 +10,7 @@ class ShortScheduleOnOneServerCache implements ShortScheduleCacheInterface
 {
     public function createLock(ShortScheduleCommand $command): bool
     {
-        return Cache::add($command->getCacheNameOnOneServer(), true, ceil($this->command->frequencyInSeconds()));
+        return Cache::add($command->getCacheNameOnOneServer(), true, ceil($command->frequencyInSeconds()));
     }
 
     public function existsLock(ShortScheduleCommand $command): bool
